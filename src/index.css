@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Yekan';
+  src: url('./assets/fonts/Yekan.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,6 +20,9 @@
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  html[lang='fa'] body, body[lang='fa'] {
+    font-family: 'Yekan', Tahoma, Arial, sans-serif !important;
   }
 }
 

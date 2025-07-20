@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Grid, List, SlidersHorizontal } from 'lucide-react';
 import { products, categories } from '../data/products';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
 import SearchBox from '../components/SearchBox';
-import { useStaggerAnimation } from '../hooks/useGSAP';
+//import { useStaggerAnimation } from '../hooks/useGSAP';
+import gsap from 'gsap';
+import { useTranslation } from 'react-i18next';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -20,7 +21,10 @@ const SearchPage: React.FC = () => {
   const query = searchParams.get('q') || '';
   const categoryParam = searchParams.get('category') || 'All';
 
-  const ref = useStaggerAnimation<HTMLDivElement>('.search-product-card', 0.1);
+  // const ref = useStaggerAnimation<HTMLDivElement>('.search-product-card', 0.1);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     setSelectedCategory(categoryParam);
@@ -29,7 +33,12 @@ const SearchPage: React.FC = () => {
 
   useEffect(() => {
     setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [query, selectedCategory]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   const filteredProducts = useMemo(() => {
     let filtered = products;
@@ -70,6 +79,12 @@ const SearchPage: React.FC = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  useEffect(() => {
+    if (gridRef.current) {
+      gsap.fromTo(gridRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
+    }
+  }, [paginatedProducts, viewMode]);
+
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     const newParams = new URLSearchParams(searchParams);
@@ -82,20 +97,20 @@ const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
+    <div className="min-h-screen bg-gray-50 pt-16" lang={i18n.language} dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-6 py-8">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-              {query ? `Search Results for "${query}"` : 'Browse Products'}
+              {query ? t('search.results', { query }) : t('search.browse')}
             </h1>
-            <SearchBox className="mb-6" />
+            <SearchBox className="mb-6" placeholder={t('search.browse')} />
             
             {/* Results Summary */}
             <div className="flex items-center justify-between text-sm text-gray-600">
               <span>
-                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} products
+                {t('search.showing', { from: startIndex + 1, to: Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length), total: filteredProducts.length })}
               </span>
               <div className="flex items-center space-x-4">
                 {/* View Mode Toggle */}
@@ -106,7 +121,7 @@ const SearchPage: React.FC = () => {
                       viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-primary-600'
                     }`}
                   >
-                    <Grid className="w-4 h-4" />
+                    {t('search.grid')}
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
@@ -114,7 +129,7 @@ const SearchPage: React.FC = () => {
                       viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-primary-600'
                     }`}
                   >
-                    <List className="w-4 h-4" />
+                    {t('search.list')}
                   </button>
                 </div>
 
@@ -123,8 +138,7 @@ const SearchPage: React.FC = () => {
                   onClick={() => setShowFilters(!showFilters)}
                   className="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <span>Filters</span>
+                  {t('search.filters')}
                 </button>
               </div>
             </div>
@@ -138,7 +152,7 @@ const SearchPage: React.FC = () => {
           <div className={`lg:w-64 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
             {/* Categories */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-800 mb-4">Categories</h3>
+              <h3 className="font-semibold text-gray-800 mb-4">{t('nav.categories')}</h3>
               <div className="space-y-2">
                 {categories.map((category) => (
                   <button
@@ -163,33 +177,33 @@ const SearchPage: React.FC = () => {
 
             {/* Sort Options */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-800 mb-4">Sort By</h3>
+              <h3 className="font-semibold text-gray-800 mb-4">{t('search.sort')}</h3>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
               >
-                <option value="name">Name (A-Z)</option>
-                <option value="category">Category</option>
-                <option value="featured">Featured First</option>
+                <option value="name">{t('search.sort_name')}</option>
+                <option value="category">{t('search.sort_category')}</option>
+                <option value="featured">{t('search.sort_featured')}</option>
               </select>
             </div>
 
             {/* Featured Filter */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-800 mb-4">Product Type</h3>
+              <h3 className="font-semibold text-gray-800 mb-4">{t('search.featured')}</h3>
               <div className="space-y-2">
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                  <span className="ml-2 text-gray-600">Featured Products</span>
+                  <span className="ml-2 text-gray-600">{t('search.featured')}</span>
                 </label>
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                  <span className="ml-2 text-gray-600">New Arrivals</span>
+                  <span className="ml-2 text-gray-600">{t('search.new')}</span>
                 </label>
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                  <span className="ml-2 text-gray-600">Custom Available</span>
+                  <span className="ml-2 text-gray-600">{t('search.custom')}</span>
                 </label>
               </div>
             </div>
@@ -199,10 +213,9 @@ const SearchPage: React.FC = () => {
           <div className="flex-1">
             {filteredProducts.length === 0 ? (
               <div className="text-center py-16">
-                <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">No products found</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">{t('search.no_results')}</h3>
                 <p className="text-gray-600 mb-6">
-                  Try adjusting your search terms or filters to find what you're looking for.
+                  {t('search.clear')}
                 </p>
                 <button
                   onClick={() => {
@@ -211,13 +224,13 @@ const SearchPage: React.FC = () => {
                   }}
                   className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors duration-200"
                 >
-                  Clear Filters
+                  {t('search.clear')}
                 </button>
               </div>
             ) : (
               <>
                 <div
-                  ref={ref}
+                  ref={gridRef}
                   className={`grid gap-6 ${
                     viewMode === 'grid'
                       ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'

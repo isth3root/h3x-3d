@@ -25,6 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) =>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex space-x-3">
               <Link
                 to={`/product/${product.id}`}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className="bg-white text-gray-800 p-3 rounded-full hover:bg-primary-600 hover:text-white transition-colors duration-200"
               >
                 <Eye className="w-5 h-5" />
@@ -81,6 +82,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) =>
           <div className="flex space-x-3">
             <Link
               to={`/product/${product.id}`}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-center py-2 px-4 rounded-lg transition-colors duration-200 font-medium"
             >
               View Details
@@ -95,4 +97,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) =>
   );
 };
 
-export default ProductCard;
+export default React.memo(ProductCard);

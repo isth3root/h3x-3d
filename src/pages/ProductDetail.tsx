@@ -27,6 +27,7 @@ import {
 } from "../utils/cart";
 import { toggleLike, isProductLiked } from "../utils/likes";
 import LoginModal from "../components/LoginModal";
+import { useTranslation } from 'react-i18next';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +43,8 @@ const ProductDetail: React.FC = () => {
 
   const heroRef = useGSAP<HTMLDivElement>();
   const detailsRef = useStaggerAnimation<HTMLDivElement>(".detail-item", 0.1);
+
+  const { i18n } = useTranslation();
 
   React.useEffect(() => {
     setUserLoggedIn(isLoggedIn());
@@ -192,7 +195,7 @@ const ProductDetail: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
+    <div className="min-h-screen bg-gray-50 pt-16" lang={i18n.language} dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
       {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-6 py-4">
@@ -375,7 +378,7 @@ const ProductDetail: React.FC = () => {
             {/* Add to Cart */}
             <div className="detail-item">
               <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <div className="flex flex-row gap-4 items-center w-full">
                   {productInCart === 0 ? (
                     <button
                       onClick={handleAddToCart}
@@ -406,18 +409,16 @@ const ProductDetail: React.FC = () => {
                   )}
                   <button
                     onClick={handleLike}
-                    className={`flex items-center justify-center border-2 px-6 py-3 rounded-lg transition-all duration-300 font-medium transform hover:scale-105 ${
+                    className={`flex items-center justify-center border-2 rounded-lg transition-all duration-300 font-medium transform hover:scale-105 ${
                       isLiked
                         ? "border-red-500 text-red-500 bg-red-50"
                         : "border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500"
-                    }`}
+                    } w-12 h-12 sm:w-auto sm:h-auto sm:px-6 sm:py-3`}
                   >
                     <Heart
-                      className={`w-5 h-5 mr-2 ${
-                        isLiked ? "fill-current" : ""
-                      }`}
+                      className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`}
                     />
-                    {isLiked ? "Liked" : "Like"}
+                    <span className="hidden sm:inline ml-2">{isLiked ? "Liked" : "Like"}</span>
                   </button>
                 </div>
               </div>

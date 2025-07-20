@@ -6,8 +6,10 @@ import { categories } from "../data/products";
 import { isLoggedIn, logout, getUser } from "../utils/auth";
 import { getCartItemCount } from "../utils/cart";
 import LoginModal from "./LoginModal";
+import { useTranslation } from 'react-i18next';
 
 const Navbar: React.FC = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -62,10 +64,10 @@ const Navbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Custom Orders", path: "/custom" },
-    { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
+    { name: t('nav.home'), path: "/" },
+    { name: t('nav.custom'), path: "/custom" },
+    { name: t('nav.about'), path: "/about" },
+    { name: t('nav.contact'), path: "/contact" },
   ];
 
   return (
@@ -96,7 +98,7 @@ const Navbar: React.FC = () => {
                   : "text-gray-700"
               }`}
             >
-              Products
+              {t('nav.products')}
             </Link>
 
             {/* Categories Dropdown */}
@@ -105,7 +107,7 @@ const Navbar: React.FC = () => {
                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
                 className="flex items-center font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200"
               >
-                Categories
+                {t('nav.categories')}
                 <ChevronDown
                   className={`w-4 h-4 ml-1 transition-transform duration-200 ${
                     isCategoriesOpen ? "rotate-180" : ""
@@ -169,7 +171,7 @@ const Navbar: React.FC = () => {
                 }
               }}
               className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-              title="Profile"
+              title={t('nav.profile')}
             >
               <User className="w-5 h-5" />
             </button>
@@ -182,7 +184,7 @@ const Navbar: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className="p-2 text-gray-600 hover:text-red-600 transition-colors duration-200"
-                  title="Logout"
+                  title={t('nav.logout')}
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -212,12 +214,12 @@ const Navbar: React.FC = () => {
                     : "text-gray-700"
                 }`}
               >
-                Products
+                {t('nav.products')}
               </Link>
 
               {/* Mobile Categories */}
               <div className="space-y-2">
-                <span className="font-medium text-gray-700">Categories</span>
+                <span className="font-medium text-gray-700">{t('nav.categories')}</span>
                 <div className="pl-4 space-y-2">
                   {categories
                     .filter((cat) => cat !== "All")

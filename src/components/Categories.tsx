@@ -2,6 +2,7 @@ import React from 'react';
 import { Package, Home, Gamepad2, Lightbulb, GraduationCap, Briefcase, Star } from 'lucide-react';
 import { useGSAP } from '../hooks/useGSAP';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const categoryIcons = {
   'Figurines': Star,
@@ -26,40 +27,37 @@ const categories = [
 const Categories: React.FC = () => {
   const ref = useGSAP<HTMLDivElement>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            Browse Categories
+            {t('landing.categories_title')}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Explore our diverse collection of 3D printed products across various categories
+            {t('landing.categories_desc')}
           </p>
         </div>
-
         <div ref={ref} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6">
           {categories.map((category) => {
             const IconComponent = categoryIcons[category.name as keyof typeof categoryIcons];
-            
             return (
               <div
                 key={category.name}
                 className="category-card group cursor-pointer"
                 onClick={() => navigate(`/search?category=${encodeURIComponent(category.name)}`)}
               >
-                <div className="bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                  <div className={`${category.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <IconComponent className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors duration-200">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {category.count} items
-                  </p>
+                <div className={`$ {category.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <IconComponent className="w-8 h-8 text-white" />
                 </div>
+                <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors duration-200">
+                  {category.name}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {category.count} {t('nav.products')}
+                </p>
               </div>
             );
           })}
