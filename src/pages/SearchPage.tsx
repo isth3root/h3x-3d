@@ -14,22 +14,29 @@ const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('name');
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState(selectedCategory);
+  const [pendingSortBy, setPendingSortBy] = useState(sortBy);
 
   const query = searchParams.get('q') || '';
-  const categoryParam = searchParams.get('category') || 'All';
+  let categoryParam = searchParams.get('category');
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as 'fa' | 'en';
+  const defaultCategory = lang === 'fa' ? 'همه' : 'All';
+
+  // If the category param is missing or matches the default, treat as no filter
+  // if (!categoryParam || categoryParam === defaultCategory) {
+  //   categoryParam = undefined;
+  // }
 
   // const ref = useStaggerAnimation<HTMLDivElement>('.search-product-card', 0.1);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const { t, i18n } = useTranslation();
-
   useEffect(() => {
-    setSelectedCategory(categoryParam);
+    setSelectedCategory(categoryParam || defaultCategory);
     setCurrentPage(1);
-  }, [categoryParam]);
+  }, [categoryParam, lang]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -47,24 +54,24 @@ const SearchPage: React.FC = () => {
     if (query) {
       filtered = filtered.filter(product =>
         product.id.toLowerCase().includes(query.toLowerCase()) ||
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.toLowerCase().includes(query.toLowerCase()) ||
-        product.category.toLowerCase().includes(query.toLowerCase())
+        product.name[lang].toLowerCase().includes(query.toLowerCase()) ||
+        product.description[lang].toLowerCase().includes(query.toLowerCase()) ||
+        product.category[lang].toLowerCase().includes(query.toLowerCase())
       );
     }
 
     // Filter by category
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
+    if (selectedCategory !== defaultCategory) {
+      filtered = filtered.filter(product => product.category[lang] === selectedCategory);
     }
 
     // Sort products
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
-          return a.name.localeCompare(b.name);
+          return a.name[lang].localeCompare(b.name[lang]);
         case 'category':
-          return a.category.localeCompare(b.category);
+          return a.category[lang].localeCompare(b.category[lang]);
         case 'featured':
           return b.featured ? 1 : -1;
         default:
@@ -73,7 +80,7 @@ const SearchPage: React.FC = () => {
     });
 
     return filtered;
-  }, [query, selectedCategory, sortBy]);
+  }, [query, selectedCategory, sortBy, lang]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -83,12 +90,12 @@ const SearchPage: React.FC = () => {
     if (gridRef.current) {
       gsap.fromTo(gridRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
     }
-  }, [paginatedProducts, viewMode]);
+  }, [paginatedProducts]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     const newParams = new URLSearchParams(searchParams);
-    if (category === 'All') {
+    if (category === defaultCategory) {
       newParams.delete('category');
     } else {
       newParams.set('category', category);
@@ -113,30 +120,14 @@ const SearchPage: React.FC = () => {
                 {t('search.showing', { from: startIndex + 1, to: Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length), total: filteredProducts.length })}
               </span>
               <div className="flex items-center space-x-4">
-                {/* View Mode Toggle */}
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-colors duration-200 ${
-                      viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-primary-600'
-                    }`}
-                  >
-                    {t('search.grid')}
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-lg transition-colors duration-200 ${
-                      viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-gray-600 hover:text-primary-600'
-                    }`}
-                  >
-                    {t('search.list')}
-                  </button>
-                </div>
-
                 {/* Filters Toggle */}
                 <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                  className="lg:hidden flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                  onClick={() => {
+                    setPendingCategory(selectedCategory);
+                    setPendingSortBy(sortBy);
+                    setMobileFiltersOpen(true);
+                  }}
                 >
                   {t('search.filters')}
                 </button>
@@ -148,30 +139,33 @@ const SearchPage: React.FC = () => {
 
       <div className="container mx-auto px-6 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <div className={`lg:w-64 space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          {/* Sidebar Filters (desktop only) */}
+          <div className={`lg:w-64 space-y-6 hidden lg:block`}>
             {/* Categories */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="font-semibold text-gray-800 mb-4">{t('nav.categories')}</h3>
               <div className="space-y-2">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => handleCategoryChange(category)}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 ${
-                      selectedCategory === category
-                        ? 'bg-primary-100 text-primary-600 font-medium'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {category}
-                    {category !== 'All' && (
-                      <span className="float-right text-sm text-gray-400">
-                        {products.filter(p => p.category === category).length}
-                      </span>
-                    )}
-                  </button>
-                ))}
+                {categories.map((categoryObj) => {
+                  const category = categoryObj[lang];
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => handleCategoryChange(category)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 ${
+                        selectedCategory === category
+                          ? 'bg-primary-100 text-primary-600 font-medium'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {category}
+                      {category !== defaultCategory && (
+                        <span className="float-right text-sm text-gray-400">
+                          {products.filter(p => p.category[lang] === category).length}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -219,7 +213,7 @@ const SearchPage: React.FC = () => {
                 </p>
                 <button
                   onClick={() => {
-                    setSelectedCategory('All');
+                    setSelectedCategory(defaultCategory);
                     setSearchParams({});
                   }}
                   className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors duration-200"
@@ -231,11 +225,7 @@ const SearchPage: React.FC = () => {
               <>
                 <div
                   ref={gridRef}
-                  className={`grid gap-6 ${
-                    viewMode === 'grid'
-                      ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
-                      : 'grid-cols-1'
-                  }`}
+                  className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
                 >
                   {paginatedProducts.map((product) => (
                     <ProductCard
@@ -256,6 +246,84 @@ const SearchPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Filters Sidebar */}
+      {mobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black bg-opacity-40 transition-opacity" onClick={() => setMobileFiltersOpen(false)} />
+          <div className="relative w-80 max-w-full bg-white h-full shadow-xl p-6 overflow-y-auto ml-auto animate-slide-in-right">
+            <h2 className="text-xl font-bold mb-4">{t('search.filters')}</h2>
+            {/* Categories */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-gray-800 mb-4">{t('nav.categories')}</h3>
+              <div className="space-y-2">
+                {categories.map((categoryObj) => {
+                  const category = categoryObj[lang];
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => setPendingCategory(category)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 ${
+                        pendingCategory === category
+                          ? 'bg-primary-100 text-primary-600 font-medium'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {category}
+                      {category !== defaultCategory && (
+                        <span className="float-right text-sm text-gray-400">
+                          {products.filter(p => p.category[lang] === category).length}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Sort Options */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-gray-800 mb-4">{t('search.sort')}</h3>
+              <select
+                value={pendingSortBy}
+                onChange={(e) => setPendingSortBy(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+              >
+                <option value="name">{t('search.sort_name')}</option>
+                <option value="category">{t('search.sort_category')}</option>
+                <option value="featured">{t('search.sort_featured')}</option>
+              </select>
+            </div>
+            {/* Featured Filter (not implemented, just UI) */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-gray-800 mb-4">{t('search.featured')}</h3>
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" disabled />
+                  <span className="ml-2 text-gray-600">{t('search.featured')}</span>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" disabled />
+                  <span className="ml-2 text-gray-600">{t('search.new')}</span>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" disabled />
+                  <span className="ml-2 text-gray-600">{t('search.custom')}</span>
+                </label>
+              </div>
+            </div>
+            <button
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 mt-4"
+              onClick={() => {
+                setSelectedCategory(pendingCategory);
+                setSortBy(pendingSortBy);
+                setMobileFiltersOpen(false);
+              }}
+            >
+              {t('search.apply') || 'Apply'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

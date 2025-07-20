@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Mail, Phone, MapPin, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Star, Home, GraduationCap, Package, Gamepad2 } from 'lucide-react';
@@ -13,21 +13,29 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-primary-400">{t('footer.company')}</h3>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-300 leading-relaxed font-bold text-lg">
               {t('footer.description')}
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
-                <Facebook className="w-5 h-5" />
+
+              {/* Telegram */}
+              <a href="https://t.me/h3x_3d" target='_blank' className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                <img src="/assets/icons/telegram.png" alt="Telegram" className="w-6 h-6" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
-                <Twitter className="w-5 h-5" />
+
+              {/* Eitaa */}
+              <a href="https://eitaa.com/h3x_3d" target='_blank' className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                <img src="/assets/icons/eitaa.png" alt="Eitaa" className="w-6 h-6" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
-                <Instagram className="w-5 h-5" />
+
+              {/* Rubika */}
+              <a href="https://rubika.ir/h3x__3d" target='_blank' className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                <img src="/assets/icons/rubika.png" alt="Rubika" className="w-6 h-6" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
-                <Youtube className="w-5 h-5" />
+
+              {/* Instagram */}
+              <a href="https://www.instagram.com/h3x.3d" target='_blank' className="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                <Instagram className='w-6 h-6 text-pink-500' />
               </a>
             </div>
           </div>

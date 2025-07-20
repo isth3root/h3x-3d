@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PaginationProps {
   currentPage: number;
@@ -8,6 +9,10 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as 'fa' | 'en';
+  const isRTL = lang === 'fa';
+
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -46,23 +51,33 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center space-x-2 mt-12">
-      {/* Previous Button */}
+    <div className={`flex items-center justify-center mt-12 ${isRTL ? 'flex-row-reverse space-x-reverse' : 'space-x-2'}`}
+      dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Previous Button (LTR: prev, RTL: next) */}
       <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        onClick={() => isRTL ? onPageChange(currentPage + 1) : onPageChange(currentPage - 1)}
+        disabled={isRTL ? currentPage === totalPages : currentPage === 1}
         className={`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-          currentPage === 1
+          (isRTL ? currentPage === totalPages : currentPage === 1)
             ? 'text-gray-400 cursor-not-allowed'
             : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'
         }`}
       >
-        <ChevronLeft className="w-4 h-4 mr-1" />
-        Previous
+        {isRTL ? (
+          <>
+            <ChevronRight className="w-4 h-4 ml-1" />
+            {t('pagination.next')}
+          </>
+        ) : (
+          <>
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            {t('pagination.previous')}
+          </>
+        )}
       </button>
 
       {/* Page Numbers */}
-      <div className="flex items-center space-x-1">
+      <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
         {getPageNumbers().map((page, index) => (
           <React.Fragment key={index}>
             {page === '...' ? (
@@ -83,18 +98,27 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         ))}
       </div>
 
-      {/* Next Button */}
+      {/* Next Button (LTR: next, RTL: prev) */}
       <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        onClick={() => isRTL ? onPageChange(currentPage - 1) : onPageChange(currentPage + 1)}
+        disabled={isRTL ? currentPage === 1 : currentPage === totalPages}
         className={`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-          currentPage === totalPages
+          (isRTL ? currentPage === 1 : currentPage === totalPages)
             ? 'text-gray-400 cursor-not-allowed'
             : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'
         }`}
       >
-        Next
-        <ChevronRight className="w-4 h-4 ml-1" />
+        {isRTL ? (
+          <>
+            {t('pagination.previous')}
+            <ChevronLeft className="w-4 h-4 mr-1" />
+          </>
+        ) : (
+          <>
+            {t('pagination.next')}
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </>
+        )}
       </button>
     </div>
   );

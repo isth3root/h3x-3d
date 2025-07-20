@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import SearchBox from './SearchBox';
 import { useNavigate } from 'react-router-dom';
@@ -43,10 +42,6 @@ const Hero: React.FC = () => {
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
   useEffect(() => {
@@ -114,22 +109,8 @@ const Hero: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation Arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-200"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-      <button
-        onClick={nextSlide}
-        className="absolute right-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-full transition-all duration-200"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
-
       {/* Slide Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex justify-center gap-3">
         {slides.map((_, index) => (
           <button
             key={index}

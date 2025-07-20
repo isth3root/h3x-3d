@@ -1,8 +1,8 @@
 export interface Product {
   id: string;
-  name: string;
-  description: string;
-  category: string;
+  name: { en: string; fa: string };
+  description: { en: string; fa: string };
+  category: { en: string; fa: string };
   images: string[];
   featured: boolean;
   specifications?: string[];
@@ -12,9 +12,18 @@ export interface Product {
 export const products: Product[] = [
   {
     id: "3DP001",
-    name: "Dragon Figurine",
-    description: "Intricately detailed dragon figurine with articulated wings and realistic scales. Perfect for fantasy enthusiasts and collectors. Printed in high-quality PLA with exceptional detail resolution.",
-    category: "Figurines",
+    name: {
+      en: "Dragon Figurine",
+      fa: "مجسمه اژدها"
+    },
+    description: {
+      en: "Intricately detailed dragon figurine with articulated wings and realistic scales. Perfect for fantasy enthusiasts and collectors. Printed in high-quality PLA with exceptional detail resolution.",
+      fa: "مجسمه اژدها با جزئیات دقیق، بال‌های متحرک و فلس‌های واقعی. مناسب علاقه‌مندان به فانتزی و کلکسیونرها. چاپ شده با PLA با کیفیت بالا و جزئیات بی‌نظیر."
+    },
+    category: {
+      en: "Figurines",
+      fa: "فیگورین"
+    },
     images: [
       "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg",
       "https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg",
@@ -31,9 +40,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP002",
-    name: "Custom Phone Case",
-    description: "Personalized phone case designed to fit your device perfectly. Available in multiple colors and patterns. Durable TPU material provides excellent protection while maintaining slim profile.",
-    category: "Accessories",
+    name: {
+      en: "Custom Phone Case",
+      fa: "قاب گوشی سفارشی"
+    },
+    description: {
+      en: "Personalized phone case designed to fit your device perfectly. Available in multiple colors and patterns. Durable TPU material provides excellent protection while maintaining slim profile.",
+      fa: "قاب گوشی سفارشی که کاملاً مناسب دستگاه شما طراحی شده است. در رنگ‌ها و طرح‌های مختلف موجود است. جنس TPU مقاوم، محافظت عالی و ظاهری باریک را فراهم می‌کند."
+    },
+    category: {
+      en: "Accessories",
+      fa: "لوازم جانبی"
+    },
     images: [
       "https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg",
       "https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg"
@@ -49,9 +67,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP003",
-    name: "Mechanical Gear Set",
-    description: "Functional mechanical gear assembly demonstrating planetary gear systems. Educational and entertaining for engineering enthusiasts. All gears mesh perfectly and rotate smoothly.",
-    category: "Educational",
+    name: {
+      en: "Mechanical Gear Set",
+      fa: "مجموعه چرخ‌دنده مکانیکی"
+    },
+    description: {
+      en: "Functional mechanical gear assembly demonstrating planetary gear systems. Educational and entertaining for engineering enthusiasts. All gears mesh perfectly and rotate smoothly.",
+      fa: "مجموعه چرخ‌دنده مکانیکی کاربردی که سیستم‌های چرخ‌دنده سیاره‌ای را نمایش می‌دهد. آموزشی و سرگرم‌کننده برای علاقه‌مندان به مهندسی. تمام چرخ‌دنده‌ها به‌خوبی درگیر شده و روان می‌چرخند."
+    },
+    category: {
+      en: "Educational",
+      fa: "آموزشی"
+    },
     images: [
       "https://images.pexels.com/photos/159298/gears-cogs-machine-machinery-159298.jpeg",
       "https://images.pexels.com/photos/1108101/pexels-photo-1108101.jpeg"
@@ -67,9 +94,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP004",
-    name: "Decorative Vase",
-    description: "Elegant spiral vase with geometric patterns. Modern design perfect for home decoration. Watertight construction suitable for fresh flowers.",
-    category: "Home Decor",
+    name: {
+      en: "Decorative Vase",
+      fa: "گلدان دکوری"
+    },
+    description: {
+      en: "Elegant spiral vase with geometric patterns. Modern design perfect for home decoration. Watertight construction suitable for fresh flowers.",
+      fa: "گلدان مارپیچی شیک با طرح‌های هندسی. طراحی مدرن مناسب دکوراسیون منزل. ساخت ضدآب مناسب گل‌های تازه."
+    },
+    category: {
+      en: "Home Decor",
+      fa: "دکوراسیون منزل"
+    },
     images: [
       "https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg",
       "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg"
@@ -85,9 +121,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP005",
-    name: "Robot Action Figure",
-    description: "Articulated robot figure with moveable joints and interchangeable parts. Inspired by classic mecha designs with modern 3D printing precision.",
-    category: "Figurines",
+    name: {
+      en: "Robot Action Figure",
+      fa: "فیگور رباتیک"
+    },
+    description: {
+      en: "Articulated robot figure with moveable joints and interchangeable parts. Inspired by classic mecha designs with modern 3D printing precision.",
+      fa: "فیگور رباتیک با مفاصل متحرک و قطعات قابل تعویض. الهام گرفته از طراحی‌های کلاسیک مکانیکی با دقت چاپ سه‌بعدی مدرن."
+    },
+    category: {
+      en: "Figurines",
+      fa: "فیگورین"
+    },
     images: [
       "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg",
       "https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg"
@@ -103,9 +148,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP006",
-    name: "Desk Organizer",
-    description: "Multi-compartment desk organizer with slots for pens, paper clips, and small office supplies. Clean, minimalist design that fits any workspace.",
-    category: "Office",
+    name: {
+      en: "Desk Organizer",
+      fa: "سازمان‌دهنده رومیزی"
+    },
+    description: {
+      en: "Multi-compartment desk organizer with slots for pens, paper clips, and small office supplies. Clean, minimalist design that fits any workspace.",
+      fa: "سازمان‌دهنده رومیزی چندبخشی با جای خودکار، گیره کاغذ و لوازم اداری کوچک. طراحی مینیمال و تمیز مناسب هر محیط کاری."
+    },
+    category: {
+      en: "Office",
+      fa: "اداری"
+    },
     images: [
       "https://images.pexels.com/photos/1108101/pexels-photo-1108101.jpeg",
       "https://images.pexels.com/photos/159298/gears-cogs-machine-machinery-159298.jpeg"
@@ -121,9 +175,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP007",
-    name: "Miniature Chess Set",
-    description: "Complete chess set with detailed pieces and folding board. Perfect for travel or display. Each piece is carefully designed with traditional chess piece aesthetics.",
-    category: "Games",
+    name: {
+      en: "Miniature Chess Set",
+      fa: "ست شطرنج مینیاتوری"
+    },
+    description: {
+      en: "Complete chess set with detailed pieces and folding board. Perfect for travel or display. Each piece is carefully designed with traditional chess piece aesthetics.",
+      fa: "ست کامل شطرنج با مهره‌های دقیق و صفحه تاشو. مناسب برای سفر یا نمایش. هر مهره با دقت و با الهام از طرح‌های سنتی ساخته شده است."
+    },
+    category: {
+      en: "Games",
+      fa: "بازی‌ها"
+    },
     images: [
       "https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg",
       "https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg"
@@ -139,9 +202,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP008",
-    name: "LED Lamp Shade",
-    description: "Geometric lamp shade designed for LED bulbs. Creates beautiful light patterns and shadows. Modern design complements contemporary interiors.",
-    category: "Lighting",
+    name: {
+      en: "LED Lamp Shade",
+      fa: "کلاهک لامپ LED"
+    },
+    description: {
+      en: "Geometric lamp shade designed for LED bulbs. Creates beautiful light patterns and shadows. Modern design complements contemporary interiors.",
+      fa: "کلاهک لامپ هندسی مناسب لامپ‌های LED. ایجاد الگوهای نوری زیبا و سایه‌های جذاب. طراحی مدرن مناسب دکوراسیون معاصر."
+    },
+    category: {
+      en: "Lighting",
+      fa: "روشنایی"
+    },
     images: [
       "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg",
       "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg"
@@ -157,9 +229,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP009",
-    name: "Puzzle Box",
-    description: "Intricate puzzle box with hidden mechanisms and secret compartments. Challenging brain teaser that doubles as a decorative piece.",
-    category: "Games",
+    name: {
+      en: "Puzzle Box",
+      fa: "جعبه پازل"
+    },
+    description: {
+      en: "Intricate puzzle box with hidden mechanisms and secret compartments. Challenging brain teaser that doubles as a decorative piece.",
+      fa: "جعبه پازل پیچیده با مکانیزم‌های مخفی و محفظه‌های سری. یک معمای فکری چالش‌برانگیز و در عین حال دکوری زیبا."
+    },
+    category: {
+      en: "Games",
+      fa: "بازی‌ها"
+    },
     images: [
       "https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg",
       "https://images.pexels.com/photos/1108101/pexels-photo-1108101.jpeg"
@@ -175,9 +256,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP010",
-    name: "Plant Pot with Drainage",
-    description: "Self-watering plant pot with integrated drainage system. Perfect for succulents and small plants. Modern design fits any home decor style.",
-    category: "Home Decor",
+    name: {
+      en: "Plant Pot with Drainage",
+      fa: "گلدان با زهکشی"
+    },
+    description: {
+      en: "Self-watering plant pot with integrated drainage system. Perfect for succulents and small plants. Modern design fits any home decor style.",
+      fa: "گلدان خودآبیار با سیستم زهکشی یکپارچه. مناسب برای ساکولنت‌ها و گیاهان کوچک. طراحی مدرن مناسب هر سبک دکوراسیون منزل."
+    },
+    category: {
+      en: "Home Decor",
+      fa: "دکوراسیون منزل"
+    },
     images: [
       "https://images.pexels.com/photos/159298/gears-cogs-machine-machinery-159298.jpeg",
       "https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg"
@@ -193,9 +283,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP011",
-    name: "Smartphone Stand",
-    description: "Adjustable smartphone stand with multiple viewing angles. Compatible with most phone sizes. Non-slip base ensures stability during use.",
-    category: "Accessories",
+    name: {
+      en: "Smartphone Stand",
+      fa: "پایه نگهدارنده گوشی"
+    },
+    description: {
+      en: "Adjustable smartphone stand with multiple viewing angles. Compatible with most phone sizes. Non-slip base ensures stability during use.",
+      fa: "پایه نگهدارنده گوشی با قابلیت تنظیم زاویه در چند حالت. سازگار با اکثر گوشی‌ها. پایه ضد لغزش برای ثبات بیشتر هنگام استفاده."
+    },
+    category: {
+      en: "Accessories",
+      fa: "لوازم جانبی"
+    },
     images: [
       "https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg",
       "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg"
@@ -211,9 +310,18 @@ export const products: Product[] = [
   },
   {
     id: "3DP012",
-    name: "Articulated Dragon",
-    description: "Fully articulated dragon with flexible joints and detailed scales. No assembly required - prints in place with moving parts. A masterpiece of 3D printing engineering.",
-    category: "Figurines",
+    name: {
+      en: "Articulated Dragon",
+      fa: "اژدهای مفصلی"
+    },
+    description: {
+      en: "Fully articulated dragon with flexible joints and detailed scales. No assembly required - prints in place with moving parts. A masterpiece of 3D printing engineering.",
+      fa: "اژدهای مفصلی با مفاصل انعطاف‌پذیر و فلس‌های دقیق. بدون نیاز به مونتاژ - چاپ یک‌تکه با قطعات متحرک. شاهکاری از مهندسی چاپ سه‌بعدی."
+    },
+    category: {
+      en: "Figurines",
+      fa: "فیگورین"
+    },
     images: [
       "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg",
       "https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg"
@@ -230,12 +338,12 @@ export const products: Product[] = [
 ];
 
 export const categories = [
-  "All",
-  "Figurines",
-  "Accessories",
-  "Educational",
-  "Home Decor",
-  "Office",
-  "Games",
-  "Lighting"
+  { en: "All", fa: "همه" },
+  { en: "Figurines", fa: "فیگورین" },
+  { en: "Accessories", fa: "لوازم جانبی" },
+  { en: "Educational", fa: "آموزشی" },
+  { en: "Home Decor", fa: "دکوراسیون منزل" },
+  { en: "Office", fa: "اداری" },
+  { en: "Games", fa: "بازی‌ها" },
+  { en: "Lighting", fa: "روشنایی" }
 ];

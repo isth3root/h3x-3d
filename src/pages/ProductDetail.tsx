@@ -11,7 +11,6 @@ import {
   Shield,
   Award,
   ShoppingCart,
-  Plus,
   Minus,
 } from "lucide-react";
 import { products } from "../data/products";
@@ -44,7 +43,8 @@ const ProductDetail: React.FC = () => {
   const heroRef = useGSAP<HTMLDivElement>();
   const detailsRef = useStaggerAnimation<HTMLDivElement>(".detail-item", 0.1);
 
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as 'fa' | 'en';
 
   React.useEffect(() => {
     setUserLoggedIn(isLoggedIn());
@@ -111,9 +111,9 @@ const ProductDetail: React.FC = () => {
     if (product) {
       addToCart(
         product.id,
-        product.name,
+        product.name[lang],
         product.images[0],
-        product.category,
+        product.category[lang],
         selectedMaterial
       );
       setCartCount(getCartItemCount());
@@ -143,8 +143,8 @@ const ProductDetail: React.FC = () => {
   };
   const handleShare = async () => {
     const url = window.location.href;
-    const title = product?.name || "Check out this product";
-    const text = `${title} - ${product?.description}`;
+    const title = product?.name[lang] || "Check out this product";
+    const text = `${title} - ${product?.description[lang]}`;
 
     if (navigator.share) {
       try {
@@ -162,8 +162,8 @@ const ProductDetail: React.FC = () => {
   };
 
   const handleEmailOrder = () => {
-    const subject = `Order Inquiry - ${product?.name} (${product?.id})`;
-    const body = `Hi,\n\nI'm interested in ordering the following product:\n\nProduct: ${product?.name}\nID: ${product?.id}\nMaterial: ${selectedMaterial}\n\nPlease provide pricing and availability information.\n\nThank you!`;
+    const subject = `Order Inquiry - ${product?.name[lang]} (${product?.id})`;
+    const body = `Hi,\n\nI'm interested in ordering the following product:\n\nProduct: ${product?.name[lang]}\nID: ${product?.id}\nMaterial: ${selectedMaterial}\n\nPlease provide pricing and availability information.\n\nThank you!`;
     window.location.href = `mailto:orders@3dprintstore.com?subject=${encodeURIComponent(
       subject
     )}&body=${encodeURIComponent(body)}`;
@@ -178,7 +178,7 @@ const ProductDetail: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Product Not Found
+            {t('not_found.title', { ns: 'translation' })}
           </h1>
           <p className="text-gray-600 mb-8">
             The product you're looking for doesn't exist.
@@ -194,6 +194,8 @@ const ProductDetail: React.FC = () => {
     );
   }
 
+  console.log(i18n.options.resources);
+
   return (
     <div className="min-h-screen bg-gray-50 pt-16" lang={i18n.language} dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
       {/* Breadcrumb */}
@@ -204,17 +206,17 @@ const ProductDetail: React.FC = () => {
               to="/"
               className="text-gray-500 hover:text-primary-600 transition-colors duration-200"
             >
-              Home
+              {t('nav.home')}
             </Link>
             <span className="text-gray-300">/</span>
             <Link
               to="/search"
               className="text-gray-500 hover:text-primary-600 transition-colors duration-200"
             >
-              Products
+              {t('nav.products')}
             </Link>
             <span className="text-gray-300">/</span>
-            <span className="text-gray-800 font-medium">{product.name}</span>
+            <span className="text-gray-800 font-medium">{product.name[lang]}</span>
           </div>
         </div>
       </div>
@@ -226,7 +228,7 @@ const ProductDetail: React.FC = () => {
           className="inline-flex items-center text-gray-600 hover:text-primary-600 transition-colors duration-200 mb-8"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Products
+          {t('product.back')}
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -234,7 +236,7 @@ const ProductDetail: React.FC = () => {
           <div ref={heroRef} className="space-y-6">
             <ProductCarousel
               images={product.images}
-              productName={product.name}
+              productName={product.name[lang]}
             />
           </div>
 
@@ -245,14 +247,14 @@ const ProductDetail: React.FC = () => {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                    {product.name}
+                    {product.name[lang]}
                   </h1>
                   <div className="flex items-center space-x-4">
                     <span className="text-lg font-mono text-primary-600 bg-primary-50 px-3 py-1 rounded-lg">
                       {product.id}
                     </span>
                     <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
-                      {product.category}
+                      {product.category[lang]}
                     </span>
                     {product.featured && (
                       <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -287,10 +289,10 @@ const ProductDetail: React.FC = () => {
             {/* Description */}
             <div className="detail-item">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Description
+                {t('product.description')}
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                {product.description}
+                {product.description[lang]}
               </p>
             </div>
 
@@ -298,7 +300,7 @@ const ProductDetail: React.FC = () => {
             {product.specifications && (
               <div className="detail-item">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Specifications
+                  {t('product.specifications')}
                 </h2>
                 <div className="bg-white rounded-lg p-6 shadow-sm">
                   <ul className="space-y-3">
@@ -317,7 +319,7 @@ const ProductDetail: React.FC = () => {
             {product.materials && (
               <div className="detail-item">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Available Materials
+                  {t('product.materials')}
                 </h2>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {product.materials.map((material, index) => (
@@ -343,33 +345,37 @@ const ProductDetail: React.FC = () => {
                 <div className="bg-white rounded-lg p-4 shadow-sm text-center">
                   <Package className="w-8 h-8 text-primary-600 mx-auto mb-2" />
                   <h3 className="font-semibold text-gray-800 mb-1">
-                    Custom Sizing
+                    {t('product.feature_custom_sizing')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Available in multiple sizes
+                    {t('product.feature_custom_sizing_desc')}
                   </p>
                 </div>
                 <div className="bg-white rounded-lg p-4 shadow-sm text-center">
                   <Truck className="w-8 h-8 text-primary-600 mx-auto mb-2" />
                   <h3 className="font-semibold text-gray-800 mb-1">
-                    Fast Delivery
+                    {t('product.feature_fast_delivery')}
                   </h3>
-                  <p className="text-sm text-gray-600">3-5 business days</p>
+                  <p className="text-sm text-gray-600">
+                    {t('product.feature_fast_delivery_desc')}
+                  </p>
                 </div>
                 <div className="bg-white rounded-lg p-4 shadow-sm text-center">
                   <Shield className="w-8 h-8 text-primary-600 mx-auto mb-2" />
                   <h3 className="font-semibold text-gray-800 mb-1">
-                    Quality Guarantee
+                    {t('product.feature_quality_guarantee')}
                   </h3>
-                  <p className="text-sm text-gray-600">30-day return policy</p>
+                  <p className="text-sm text-gray-600">
+                    {t('product.feature_quality_guarantee_desc')}
+                  </p>
                 </div>
                 <div className="bg-white rounded-lg p-4 shadow-sm text-center">
                   <Award className="w-8 h-8 text-primary-600 mx-auto mb-2" />
                   <h3 className="font-semibold text-gray-800 mb-1">
-                    Premium Quality
+                    {t('product.feature_premium_quality')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Professional grade materials
+                    {t('product.feature_premium_quality_desc')}
                   </p>
                 </div>
               </div>
@@ -385,7 +391,7 @@ const ProductDetail: React.FC = () => {
                       className="flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium flex-1 transform hover:scale-105"
                     >
                       <ShoppingCart className="w-5 h-5 mr-2" />
-                      Add to Cart
+                      {t('product.add_to_cart')}
                     </button>
                   ) : (
                     <div className="flex items-center space-x-4 flex-1">
@@ -398,13 +404,7 @@ const ProductDetail: React.FC = () => {
                       <span className="text-lg font-semibold min-w-[2rem] text-center">
                         {productInCart}
                       </span>
-                      <button
-                        onClick={() => handleUpdateQuantity(productInCart + 1)}
-                        className="w-10 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-full flex items-center justify-center transition-colors duration-200"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                      <span className="text-sm text-gray-600">in cart</span>
+                      <span className="text-sm text-gray-600">{t('product.in_cart')}</span>
                     </div>
                   )}
                   <button
@@ -418,7 +418,7 @@ const ProductDetail: React.FC = () => {
                     <Heart
                       className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`}
                     />
-                    <span className="hidden sm:inline ml-2">{isLiked ? "Liked" : "Like"}</span>
+                    <span className="hidden sm:inline ml-2">{isLiked ? t('product.liked') : t('product.like')}</span>
                   </button>
                 </div>
               </div>
@@ -427,27 +427,26 @@ const ProductDetail: React.FC = () => {
             {/* Contact for Orders */}
             <div className="detail-item">
               <div className="bg-primary-50 border border-primary-200 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Order This Product
+                <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  {t('product.order')}
                 </h2>
-                <p className="text-gray-600 mb-6">
-                  Contact us for pricing and to place your order. We'll provide
-                  detailed information based on your requirements.
+                <p className="text-gray-600 mb-6 font-bold text-lg">
+                  {t('product.order_desc')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={handleEmailOrder}
-                    className="flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 font-medium"
+                    className="flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 font-bold"
                   >
                     <Mail className="w-5 h-5 mr-2" />
-                    Email Order
+                    {t('product.email')}
                   </button>
                   <button
                     onClick={handlePhoneOrder}
-                    className="flex items-center justify-center bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 px-6 py-3 rounded-lg transition-colors duration-200 font-medium"
+                    className="flex items-center font-bold justify-center bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 px-6 py-3 rounded-lg transition-colors duration-200"
                   >
                     <Phone className="w-5 h-5 mr-2" />
-                    Call to Order
+                    {t('product.call')}
                   </button>
                 </div>
               </div>

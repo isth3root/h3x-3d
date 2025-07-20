@@ -29,3 +29,7 @@ export const toggleLike = (productId: string): boolean => {
 export const isProductLiked = (productId: string): boolean => {
   return getLikedProducts().includes(productId);
 };
+
+export const clearLikes = (): void => {
+  localStorage.removeItem(LIKES_STORAGE_KEY);
+};

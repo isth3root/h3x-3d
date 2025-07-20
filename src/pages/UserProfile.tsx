@@ -3,6 +3,10 @@ import { getLikedProducts } from '../utils/likes';
 import { products } from '../data/products';
 import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
+import { getUser, logout as doLogout } from '../utils/auth';
+import { clearLikes } from '../utils/likes';
+import { clearCart } from '../utils/cart';
+import { useNavigate } from 'react-router-dom';
 
 const USER_PROFILE_KEY = 'user_profile';
 
@@ -19,12 +23,18 @@ const UserProfile: React.FC = () => {
   const [likes, setLikes] = useState<string[]>([]);
   const profileCardRef = useRef<HTMLDivElement>(null);
   const likesCardRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(getUser());
 
   useEffect(() => {
     const stored = localStorage.getItem(USER_PROFILE_KEY);
     if (stored) setProfile(JSON.parse(stored));
     setLikes(getLikedProducts());
-  }, []);
+    setUser(getUser());
+    if (!getUser()) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (profileCardRef.current) {
@@ -52,9 +62,11 @@ const UserProfile: React.FC = () => {
     setEditMode(false);
   };
 
-  const handleLangChange = (lang: string) => {
-    i18n.changeLanguage(lang);
-    document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+  const handleLogout = () => {
+    doLogout();
+    clearLikes();
+    clearCart();
+    navigate('/');
   };
 
   useEffect(() => {
@@ -66,10 +78,9 @@ const UserProfile: React.FC = () => {
       <div className="container mx-auto px-6 py-16 max-w-2xl">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-extrabold text-primary-700 drop-shadow-sm">{t('profile.title')}</h1>
-          <div className="flex gap-2">
-            <button onClick={() => handleLangChange('en')} className={`px-3 py-1 rounded font-bold transition-colors duration-200 ${i18n.language === 'en' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700'}`}>EN</button>
-            <button onClick={() => handleLangChange('fa')} className={`px-3 py-1 rounded font-bold transition-colors duration-200 ${i18n.language === 'fa' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700'}`}>FA</button>
-          </div>
+          {user && (
+            <button onClick={handleLogout} className="btn-secondary text-sm px-4 py-2 rounded-lg shadow-md">{t('profile.logout')}</button>
+          )}
         </div>
         <div ref={profileCardRef} className="bg-white/80 backdrop-blur rounded-2xl shadow-2xl p-8 mb-8 border border-primary-100">
           {editMode ? (
@@ -96,6 +107,9 @@ const UserProfile: React.FC = () => {
               <div className="mb-2 text-lg"><b>{t('profile.name')}:</b> <span className="text-primary-700">{profile.name || t('profile.notset')}</span></div>
               <div className="mb-2 text-lg"><b>{t('profile.age')}:</b> <span className="text-primary-700">{profile.age || t('profile.notset')}</span></div>
               <div className="mb-2 text-lg"><b>{t('profile.address')}:</b> <span className="text-primary-700">{profile.address || t('profile.notset')}</span></div>
+              {user && (
+                <div className="mb-2 text-lg"><b>{t('profile.phone')}:</b> <span className="text-primary-700">{user.phone}</span></div>
+              )}
               <button onClick={() => setEditMode(true)} className="btn-primary mt-6 w-full shadow-md">{t('profile.edit')}</button>
             </div>
           )}
@@ -110,7 +124,7 @@ const UserProfile: React.FC = () => {
                 const product = products.find(p => p.id === id);
                 return product ? (
                   <li key={id} className="border-b pb-2 flex items-center gap-2">
-                    <span className="font-semibold text-primary-700">{product.name}</span>
+                    <a href={`/h3x-3d/product/${product.id}`} className="font-semibold text-primary-700 hover:underline">{product.name[i18n.language as 'fa' | 'en']}</a>
                     <span className="text-gray-400">({product.id})</span>
                   </li>
                 ) : null;

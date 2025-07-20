@@ -14,6 +14,27 @@ const categoryIcons = {
   'Lighting': Lightbulb,
 };
 
+const categoryNames = {
+  en: {
+    'Figurines': 'Figurines',
+    'Accessories': 'Accessories',
+    'Educational': 'Educational',
+    'Home Decor': 'Home Decor',
+    'Office': 'Office',
+    'Games': 'Games',
+    'Lighting': 'Lighting',
+  },
+  fa: {
+    'Figurines': 'فیگورین',
+    'Accessories': 'لوازم جانبی',
+    'Educational': 'آموزشی',
+    'Home Decor': 'دکوراسیون منزل',
+    'Office': 'اداری',
+    'Games': 'بازی‌ها',
+    'Lighting': 'روشنایی',
+  }
+};
+
 const categories = [
   { name: 'Figurines', count: 45, color: 'bg-purple-500' },
   { name: 'Accessories', count: 32, color: 'bg-blue-500' },
@@ -27,7 +48,8 @@ const categories = [
 const Categories: React.FC = () => {
   const ref = useGSAP<HTMLDivElement>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as 'fa' | 'en';
 
   return (
     <section className="py-20 bg-gray-50">
@@ -43,21 +65,24 @@ const Categories: React.FC = () => {
         <div ref={ref} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6">
           {categories.map((category) => {
             const IconComponent = categoryIcons[category.name as keyof typeof categoryIcons];
+            const displayName = categoryNames[lang][category.name as keyof typeof categoryNames['en']];
             return (
               <div
                 key={category.name}
                 className="category-card group cursor-pointer"
                 onClick={() => navigate(`/search?category=${encodeURIComponent(category.name)}`)}
               >
-                <div className={`$ {category.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <IconComponent className="w-8 h-8 text-white" />
+                <div className={`bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2`}>
+                  <div className={`${category.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    {IconComponent && <IconComponent className="w-8 h-8 text-white" />}
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors duration-200">
+                    {displayName}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {category.count} {t('nav.products')}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors duration-200">
-                  {category.name}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {category.count} {t('nav.products')}
-                </p>
               </div>
             );
           })}

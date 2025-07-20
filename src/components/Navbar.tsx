@@ -1,34 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, ChevronDown, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, User, ChevronDown, Globe } from "lucide-react";
 import { gsap } from "gsap";
 import { categories } from "../data/products";
-import { isLoggedIn, logout, getUser } from "../utils/auth";
+import { isLoggedIn } from "../utils/auth";
 import { getCartItemCount } from "../utils/cart";
 import LoginModal from "./LoginModal";
 import { useTranslation } from 'react-i18next';
 
 const Navbar: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isCategoriesMobileOpen, setIsCategoriesMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  // const [showToast, setShowToast] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const categoriesDropdownRef = useRef<HTMLDivElement>(null);
+  const lang = i18n.language as 'fa' | 'en';
 
   useEffect(() => {
     setUserLoggedIn(isLoggedIn());
     setCartCount(getCartItemCount());
-
-    // Listen for cart updates
     const handleCartUpdate = () => {
       setCartCount(getCartItemCount());
     };
-
     window.addEventListener("cartUpdated", handleCartUpdate);
     return () => window.removeEventListener("cartUpdated", handleCartUpdate);
   }, []);
@@ -38,24 +37,22 @@ const Navbar: React.FC = () => {
     setCartCount(getCartItemCount());
   };
 
-  const handleLogout = () => {
-    logout();
-    setUserLoggedIn(false);
-    setCartCount(0);
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   setUserLoggedIn(false);
+  //   setCartCount(0);
+  //   window.dispatchEvent(new Event("cartUpdated"));
+  // };
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    // Animate navbar on mount
     gsap.fromTo(
       ".navbar",
       { y: -100, opacity: 0 },
@@ -63,11 +60,26 @@ const Navbar: React.FC = () => {
     );
   }, []);
 
+  // Handle hover for categories on large screens
+  const handleCategoriesMouseEnter = () => {
+    if (window.innerWidth >= 1024) setIsCategoriesOpen(true);
+  };
+  const handleCategoriesMouseLeave = () => {
+    if (window.innerWidth >= 1024) setIsCategoriesOpen(false);
+  };
+
   const navLinks = [
     { name: t('nav.home'), path: "/" },
     { name: t('nav.custom'), path: "/custom" },
     { name: t('nav.about'), path: "/about" },
     { name: t('nav.contact'), path: "/contact" },
+  ];
+
+  // Language dropdown
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langOptions = [
+    { code: 'fa', label: 'فارسی' },
+    { code: 'en', label: 'English' },
   ];
 
   return (
@@ -78,18 +90,93 @@ const Navbar: React.FC = () => {
           : "bg-white bg-opacity-95 backdrop-blur-sm"
       }`}
     >
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">3D</span>
+              <span
+                className="text-white font-bold text-sm"
+                style={{ fontFamily: "Inter, Arial, sans-serif" }}
+              >
+                3D
+              </span>
             </div>
-            <span className="text-xl font-bold text-gray-800">Print Store</span>
+            <span
+              className="text-xl font-bold text-gray-800"
+              style={{ fontFamily: "Inter, Arial, sans-serif" }}
+            >
+              H3X3D
+            </span>
           </Link>
 
+          {/* Mobile: Cart, User, Lang, Hamburger */}
+          <div className="flex items-center space-x-2 lg:hidden">
+            <Link
+              to="/cart"
+              className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <button
+              onClick={() => {
+                if (userLoggedIn) {
+                  navigate("/profile");
+                } else {
+                  setIsLoginModalOpen(true);
+                }
+              }}
+              className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              title={t("nav.profile")}
+            >
+              <User className="w-5 h-5" />
+            </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsLangOpen((v) => !v)}
+                className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                title={t("nav.language", "Language")}
+              >
+                <Globe className="w-5 h-5" />
+              </button>
+              {isLangOpen && (
+                <div className="absolute right-0 mt-2 w-28 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  {langOptions.map((opt) => (
+                    <button
+                      key={opt.code}
+                      onClick={() => {
+                        i18n.changeLanguage(opt.code);
+                        setIsLangOpen(false);
+                      }}
+                      className={`block w-full text-right px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200 ${
+                        i18n.language === opt.code ? "font-bold" : ""
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+            >
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-6">
             <Link
               to="/search"
               className={`font-medium transition-colors duration-200 hover:text-primary-600 ${
@@ -98,41 +185,56 @@ const Navbar: React.FC = () => {
                   : "text-gray-700"
               }`}
             >
-              {t('nav.products')}
+              {t("nav.products")}
             </Link>
-
-            {/* Categories Dropdown */}
-            <div className="relative">
+            {/* Categories Dropdown (hover on large screens) */}
+            <div
+              className="relative px-3"
+              onMouseEnter={handleCategoriesMouseEnter}
+              onMouseLeave={handleCategoriesMouseLeave}
+            >
               <button
-                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                onClick={() => {
+                  if (window.innerWidth < 1024)
+                    setIsCategoriesOpen(!isCategoriesOpen);
+                }}
                 className="flex items-center font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200"
+                type="button"
               >
-                {t('nav.categories')}
+                {t("nav.categories")}
                 <ChevronDown
                   className={`w-4 h-4 ml-1 transition-transform duration-200 ${
                     isCategoriesOpen ? "rotate-180" : ""
                   }`}
                 />
               </button>
-
               {isCategoriesOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                <div
+                  ref={categoriesDropdownRef}
+                  className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                >
                   {categories
-                    .filter((cat) => cat !== "All")
-                    .map((category) => (
-                      <Link
-                        key={category}
-                        to={`/search?category=${encodeURIComponent(category)}`}
-                        onClick={() => setIsCategoriesOpen(false)}
-                        className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
-                      >
-                        {category}
-                      </Link>
-                    ))}
+                    .filter(
+                      (cat) => cat[lang] !== (lang === "fa" ? "همه" : "All")
+                    )
+                    .map((categoryObj) => {
+                      const category = categoryObj[lang];
+                      return (
+                        <Link
+                          key={category}
+                          to={`/search?category=${encodeURIComponent(
+                            category
+                          )}`}
+                          onClick={() => setIsCategoriesOpen(false)}
+                          className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200"
+                        >
+                          {category}
+                        </Link>
+                      );
+                    })}
                 </div>
               )}
             </div>
-
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -146,10 +248,7 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
-          </div>
-
-          {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
+            {/* Desktop Cart, User, Lang */}
             <Link
               to="/cart"
               className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
@@ -161,44 +260,47 @@ const Navbar: React.FC = () => {
                 </span>
               )}
             </Link>
-
             <button
               onClick={() => {
                 if (userLoggedIn) {
-                  navigate('/profile');
+                  navigate("/profile");
                 } else {
                   setIsLoginModalOpen(true);
                 }
               }}
               className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-              title={t('nav.profile')}
+              title={t("nav.profile")}
             >
               <User className="w-5 h-5" />
             </button>
-
-            {userLoggedIn && (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">
-                  {getUser()?.phone}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-gray-600 hover:text-red-600 transition-colors duration-200"
-                  title={t('nav.logout')}
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-            )}
+            <div className="relative">
+              <button
+                onClick={() => setIsLangOpen((v) => !v)}
+                className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                title={t("nav.language", "Language")}
+              >
+                <Globe className="w-5 h-5" />
+              </button>
+              {isLangOpen && (
+                <div className="absolute right-0 mt-2 w-28 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  {langOptions.map((opt) => (
+                    <button
+                      key={opt.code}
+                      onClick={() => {
+                        i18n.changeLanguage(opt.code);
+                        setIsLangOpen(false);
+                      }}
+                      className={`block w-full text-right px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200 ${
+                        i18n.language === opt.code ? "font-bold" : ""
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
 
         {/* Mobile Navigation */}
@@ -214,28 +316,45 @@ const Navbar: React.FC = () => {
                     : "text-gray-700"
                 }`}
               >
-                {t('nav.products')}
+                {t("nav.products")}
               </Link>
-
-              {/* Mobile Categories */}
-              <div className="space-y-2">
-                <span className="font-medium text-gray-700">{t('nav.categories')}</span>
-                <div className="pl-4 space-y-2">
-                  {categories
-                    .filter((cat) => cat !== "All")
-                    .map((category) => (
-                      <Link
-                        key={category}
-                        to={`/search?category=${encodeURIComponent(category)}`}
-                        onClick={() => setIsOpen(false)}
-                        className="block text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                      >
-                        {category}
-                      </Link>
-                    ))}
-                </div>
+              {/* Mobile Categories Collapsible */}
+              <div>
+                <button
+                  onClick={() => setIsCategoriesMobileOpen((v) => !v)}
+                  className="flex items-center font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200 w-full"
+                >
+                  {t("nav.categories")}
+                  <ChevronDown
+                    className={`w-4 h-4 ml-1 transition-transform duration-200 ${
+                      isCategoriesMobileOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isCategoriesMobileOpen && (
+                  <div className="pl-4 mt-2 space-y-2">
+                    {categories
+                      .filter(
+                        (cat) => cat[lang] !== (lang === "fa" ? "همه" : "All")
+                      )
+                      .map((categoryObj) => {
+                        const category = categoryObj[lang];
+                        return (
+                          <Link
+                            key={category}
+                            to={`/search?category=${encodeURIComponent(
+                              category
+                            )}`}
+                            onClick={() => setIsOpen(false)}
+                            className="block text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                          >
+                            {category}
+                          </Link>
+                        );
+                      })}
+                  </div>
+                )}
               </div>
-
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
@@ -254,7 +373,6 @@ const Navbar: React.FC = () => {
           </div>
         )}
       </div>
-
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
