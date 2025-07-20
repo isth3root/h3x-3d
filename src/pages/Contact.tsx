@@ -3,7 +3,7 @@ import { useGSAP } from "../hooks/useGSAP";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 
 const Contact: React.FC = () => {
-  const ref = useGSAP();
+  const ref = useGSAP<HTMLDivElement>();
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">

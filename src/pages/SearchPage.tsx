@@ -20,7 +20,7 @@ const SearchPage: React.FC = () => {
   const query = searchParams.get('q') || '';
   const categoryParam = searchParams.get('category') || 'All';
 
-  const ref = useStaggerAnimation('.search-product-card', 0.1);
+  const ref = useStaggerAnimation<HTMLDivElement>('.search-product-card', 0.1);
 
   useEffect(() => {
     setSelectedCategory(categoryParam);

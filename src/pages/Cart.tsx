@@ -11,7 +11,7 @@ import {
 import { products } from "../data/products";
 
 const Cart: React.FC = () => {
-  const ref = useGSAP();
+  const ref = useGSAP<HTMLDivElement>();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {

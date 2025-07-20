@@ -4,8 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const useGSAP = () => {
-  const ref = useRef<HTMLElement>(null);
+export const useGSAP = <T extends HTMLElement = HTMLDivElement>() => {
+  const ref = useRef<T>(null);
 
   useEffect(() => {
     const element = ref.current;
@@ -36,8 +36,8 @@ export const useGSAP = () => {
   return ref;
 };
 
-export const useStaggerAnimation = (selector: string, delay: number = 0.1) => {
-  const ref = useRef<HTMLElement>(null);
+export const useStaggerAnimation = <T extends HTMLElement = HTMLDivElement>(selector: string, delay: number = 0.1) => {
+  const ref = useRef<T>(null);
 
   useEffect(() => {
     const element = ref.current;
@@ -70,8 +70,8 @@ export const useStaggerAnimation = (selector: string, delay: number = 0.1) => {
   return ref;
 };
 
-export const useScaleAnimation = () => {
-  const ref = useRef<HTMLElement>(null);
+export const useScaleAnimation = <T extends HTMLElement = HTMLDivElement>() => {
+  const ref = useRef<T>(null);
 
   useEffect(() => {
     const element = ref.current;

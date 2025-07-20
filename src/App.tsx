@@ -8,6 +8,7 @@ import CustomOrders from "./pages/CustomOrders";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Cart from "./pages/Cart";
+import UserProfile from './pages/UserProfile';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/profile" element={<UserProfile />} />
           </Routes>
         </main>
         <Footer />

@@ -3,9 +3,9 @@ import { useGSAP, useStaggerAnimation } from "../hooks/useGSAP";
 import { Award, Zap, Heart, Target, Globe } from "lucide-react";
 
 const About: React.FC = () => {
-  const heroRef = useGSAP();
-  const statsRef = useStaggerAnimation(".stat-card", 0.2);
-  const teamRef = useStaggerAnimation(".team-member", 0.15);
+  const heroRef = useGSAP<HTMLDivElement>();
+  const statsRef = useStaggerAnimation<HTMLDivElement>(".stat-card", 0.2);
+  const teamRef = useStaggerAnimation<HTMLDivElement>(".team-member", 0.15);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Package, Home, Gamepad2, Lightbulb, GraduationCap, Briefcase, Star } from 'lucide-react';
 import { useGSAP } from '../hooks/useGSAP';
+import { useNavigate } from 'react-router-dom';
 
 const categoryIcons = {
   'Figurines': Star,
@@ -23,7 +24,8 @@ const categories = [
 ];
 
 const Categories: React.FC = () => {
-  const ref = useGSAP();
+  const ref = useGSAP<HTMLDivElement>();
+  const navigate = useNavigate();
 
   return (
     <section className="py-20 bg-gray-50">
@@ -45,6 +47,7 @@ const Categories: React.FC = () => {
               <div
                 key={category.name}
                 className="category-card group cursor-pointer"
+                onClick={() => navigate(`/search?category=${encodeURIComponent(category.name)}`)}
               >
                 <div className="bg-white rounded-xl p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
                   <div className={`${category.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>

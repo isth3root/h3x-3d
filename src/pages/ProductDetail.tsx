@@ -40,8 +40,8 @@ const ProductDetail: React.FC = () => {
   const [toastMessage, setToastMessage] = React.useState("");
   const [productInCart, setProductInCart] = React.useState(0);
 
-  const heroRef = useGSAP();
-  const detailsRef = useStaggerAnimation(".detail-item", 0.1);
+  const heroRef = useGSAP<HTMLDivElement>();
+  const detailsRef = useStaggerAnimation<HTMLDivElement>(".detail-item", 0.1);
 
   React.useEffect(() => {
     setUserLoggedIn(isLoggedIn());

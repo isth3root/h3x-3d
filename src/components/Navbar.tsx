@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ShoppingCart, User, ChevronDown, LogOut } from "lucide-react";
 import { gsap } from "gsap";
 import { categories } from "../data/products";
@@ -16,6 +16,7 @@ const Navbar: React.FC = () => {
   const [cartCount, setCartCount] = useState(0);
   // const [showToast, setShowToast] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUserLoggedIn(isLoggedIn());
@@ -159,7 +160,21 @@ const Navbar: React.FC = () => {
               )}
             </Link>
 
-            {userLoggedIn ? (
+            <button
+              onClick={() => {
+                if (userLoggedIn) {
+                  navigate('/profile');
+                } else {
+                  setIsLoginModalOpen(true);
+                }
+              }}
+              className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+              title="Profile"
+            >
+              <User className="w-5 h-5" />
+            </button>
+
+            {userLoggedIn && (
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600">
                   {getUser()?.phone}
@@ -172,13 +187,6 @@ const Navbar: React.FC = () => {
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={() => setIsLoginModalOpen(true)}
-                className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-              >
-                <User className="w-5 h-5" />
-              </button>
             )}
           </div>
 
@@ -240,35 +248,6 @@ const Navbar: React.FC = () => {
                   {link.name}
                 </Link>
               ))}
-              <div className="flex items-center space-x-4 pt-4 border-t border-gray-200">
-                <Link
-                  to="/cart"
-                  className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </Link>
-
-                {userLoggedIn ? (
-                  <button
-                    onClick={handleLogout}
-                    className="p-2 text-gray-600 hover:text-red-600 transition-colors duration-200"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setIsLoginModalOpen(true)}
-                    className="p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                  >
-                    <User className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
             </div>
           </div>
         )}

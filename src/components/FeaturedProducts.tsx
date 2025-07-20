@@ -5,7 +5,7 @@ import { useGSAP } from '../hooks/useGSAP';
 
 const FeaturedProducts: React.FC = () => {
   const featuredProducts = products.filter(product => product.featured);
-  const ref = useGSAP()
+  const ref = useGSAP<HTMLDivElement>();
 
   return (
     <section className="py-20 bg-white">

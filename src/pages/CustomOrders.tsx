@@ -3,7 +3,7 @@ import { useGSAP } from "../hooks/useGSAP";
 import { Package, Clock, Users, Award, Mail, Phone } from "lucide-react";
 
 const CustomOrders: React.FC = () => {
-  const ref = useGSAP();
+  const ref = useGSAP<HTMLDivElement>();
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">

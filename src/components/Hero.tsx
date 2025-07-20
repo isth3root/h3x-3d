@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import SearchBox from './SearchBox';
+import { useNavigate } from 'react-router-dom';
 
 const heroSlides = [
   {
@@ -37,6 +38,7 @@ const Hero: React.FC = () => {
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLButtonElement>(null);
+  const navigate = useNavigate();
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -107,12 +109,33 @@ const Hero: React.FC = () => {
               <SearchBox placeholder="Search for products..." />
             </div>
 
-            <button 
-              ref={ctaRef}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              {currentSlideData.cta}
-            </button>
+            {/* Slide-specific CTA buttons */}
+            <div className="flex flex-col md:flex-row justify-center gap-4 mb-8">
+              {currentSlide === 0 && (
+                <button
+                  onClick={() => navigate('/search')}
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  Explore Collection
+                </button>
+              )}
+              {currentSlide === 1 && (
+                <button
+                  onClick={() => navigate('/custom')}
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  Start Custom Order
+                </button>
+              )}
+              {currentSlide === 2 && (
+                <button
+                  onClick={() => navigate('/search?category=Educational')}
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  View Educational Items
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
