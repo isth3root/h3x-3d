@@ -12,13 +12,21 @@ import {
   Award,
   ShoppingCart,
   Minus,
+  Plus,
 } from "lucide-react";
 import { products } from "../data/products";
 import ProductCarousel from "../components/ProductCarousel";
 import { useGSAP, useStaggerAnimation } from "../hooks/useGSAP";
 import { isLoggedIn } from "../utils/auth";
-import { useCart } from "../hooks/useCart";
-import { useLikes } from "../hooks/useLikes";
+import {
+  addToCart,
+  getCartItemCount,
+  getCartItems,
+  removeFromCart,
+  updateCartQuantity,
+} from "../utils/cart";
+import { toggleLike, isProductLiked } from "../utils/likes";
+import { setPendingAction, getPendingAction, clearPendingAction } from "../store/pendingAction";
 import LoginModal from "../components/LoginModal";
 import { useTranslation } from 'react-i18next';
 
@@ -27,20 +35,12 @@ const ProductDetail: React.FC = () => {
   const product = products.find((p) => p.id === id);
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
   const [userLoggedIn, setUserLoggedIn] = React.useState(false);
+  const [isLiked, setIsLiked] = React.useState(false);
   const [selectedMaterial, setSelectedMaterial] = React.useState("");
+  const [, setCartCount] = React.useState(0);
   const [showToast, setShowToast] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState("");
-
-  const { isLiked, toggleLike } = useLikes(product?.id);
-  const { cartItems, addToCart, updateCartQuantity } = useCart();
-
-  const productInCart = React.useMemo(() => {
-    if (!product) return 0;
-    const item = cartItems.find(
-      (item) => item.id === product.id && item.material === selectedMaterial
-    );
-    return item ? item.quantity : 0;
-  }, [cartItems, product, selectedMaterial]);
+  const [productInCart, setProductInCart] = React.useState(0);
 
   const heroRef = useGSAP<HTMLDivElement>();
   const detailsRef = useStaggerAnimation<HTMLDivElement>(".detail-item", 0.1);
@@ -50,31 +50,65 @@ const ProductDetail: React.FC = () => {
 
   React.useEffect(() => {
     setUserLoggedIn(isLoggedIn());
+    setCartCount(getCartItemCount());
     if (product) {
+      setIsLiked(isProductLiked(product.id));
       setSelectedMaterial(product.materials?.[0] || "");
+      updateProductInCart();
     }
   }, [product]);
+
+  React.useEffect(() => {
+    const handleCartUpdate = () => {
+      setCartCount(getCartItemCount());
+      updateProductInCart();
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
+  }, [product, selectedMaterial]);
+
+  const updateProductInCart = () => {
+    if (product) {
+      const cartItems = getCartItems();
+      const item = cartItems.find(
+        (item) => item.id === product.id && item.material === selectedMaterial
+      );
+      setProductInCart(item ? item.quantity : 0);
+    }
+  };
 
   const showToastMessage = (message: string) => {
     setToastMessage(message);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
-
   const handleLogin = () => {
     setUserLoggedIn(true);
+    setCartCount(getCartItemCount());
+    updateProductInCart();
+
+    const pendingAction = getPendingAction();
+    if (pendingAction && pendingAction.type === 'like' && product && pendingAction.payload === product.id) {
+      handleLike(true);
+      clearPendingAction();
+    }
   };
 
-  const handleLike = () => {
-    if (!userLoggedIn) {
+  const handleLike = (force = false) => {
+    if (!userLoggedIn && !force) {
+      if (product) {
+        setPendingAction({ type: 'like', payload: product.id });
+      }
       setIsLoginModalOpen(true);
       return;
     }
 
     if (product) {
-      toggleLike(product.id);
+      const newLikedState = toggleLike(product.id);
+      setIsLiked(newLikedState);
       showToastMessage(
-        !isLiked ? "Added to favorites!" : "Removed from favorites"
+        newLikedState ? "Added to favorites!" : "Removed from favorites"
       );
     }
   };
@@ -86,14 +120,17 @@ const ProductDetail: React.FC = () => {
     }
 
     if (product) {
-      addToCart({
-        id: product.id,
-        name: product.name[lang],
-        image: product.images[0],
-        category: product.category[lang],
-        material: selectedMaterial,
-      });
+      addToCart(
+        product.id,
+        product.name[lang],
+        product.images[0],
+        product.category[lang],
+        selectedMaterial
+      );
+      setCartCount(getCartItemCount());
+      updateProductInCart();
       showToastMessage("Added to cart!");
+      window.dispatchEvent(new Event("cartUpdated"));
     }
   };
 
@@ -104,8 +141,20 @@ const ProductDetail: React.FC = () => {
     }
 
     if (product) {
-      updateCartQuantity(product.id, newQuantity, selectedMaterial);
-      showToastMessage(newQuantity > 0 ? "Cart updated" : "Removed from cart");
+      if (newQuantity > 5) {
+        showToastMessage("For orders of more than 5, please contact us.");
+        return;
+      }
+
+      if (newQuantity === 0) {
+        removeFromCart(product.id, selectedMaterial);
+        showToastMessage("Removed from cart");
+      } else {
+        updateCartQuantity(product.id, newQuantity, selectedMaterial);
+        showToastMessage("Cart updated");
+      }
+      updateProductInCart();
+      window.dispatchEvent(new Event("cartUpdated"));
     }
   };
   const handleShare = async () => {
@@ -160,8 +209,6 @@ const ProductDetail: React.FC = () => {
       </div>
     );
   }
-
-  console.log(i18n.options.resources);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16" lang={i18n.language} dir={i18n.language === 'fa' ? 'rtl' : 'ltr'}>
@@ -365,12 +412,21 @@ const ProductDetail: React.FC = () => {
                       <button
                         onClick={() => handleUpdateQuantity(productInCart - 1)}
                         className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors duration-200"
+                        aria-label="minus"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="text-lg font-semibold min-w-[2rem] text-center">
                         {productInCart}
                       </span>
+                      <button
+                        onClick={() => handleUpdateQuantity(productInCart + 1)}
+                        disabled={productInCart >= 5}
+                        className="w-10 h-10 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-colors duration-200"
+                        aria-label="plus"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
                       <span className="text-sm text-gray-600">{t('product.in_cart')}</span>
                     </div>
                   )}
@@ -388,6 +444,11 @@ const ProductDetail: React.FC = () => {
                     <span className="hidden sm:inline ml-2">{isLiked ? t('product.liked') : t('product.like')}</span>
                   </button>
                 </div>
+                {productInCart >= 5 && (
+                  <p className="text-sm text-center text-gray-600 mt-4">
+                    {t('product.max_quantity_contact')}
+                  </p>
+                )}
               </div>
             </div>
 
