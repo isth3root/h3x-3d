@@ -4,7 +4,7 @@ import { Menu, X, ShoppingCart, User, ChevronDown, Globe } from "lucide-react";
 import { gsap } from "gsap";
 import { categories } from "../data/products";
 import { isLoggedIn } from "../utils/auth";
-import { useCart } from "../hooks/useCart";
+import { getCartItemCount } from "../utils/cart";
 import LoginModal from "./LoginModal";
 import { useTranslation } from 'react-i18next';
 
@@ -16,19 +16,31 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const { getCartItemCount } = useCart();
-  const cartCount = getCartItemCount();
+  const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const categoriesDropdownRef = useRef<HTMLDivElement>(null);
   const lang = i18n.language as 'fa' | 'en';
 
   useEffect(() => {
-    setUserLoggedIn(isLoggedIn());
+    const updateLoginStatus = () => setUserLoggedIn(isLoggedIn());
+    updateLoginStatus();
+
+    const updateCartCount = () => setCartCount(getCartItemCount());
+    updateCartCount();
+
+    window.addEventListener("cartUpdated", updateCartCount);
+    window.addEventListener("loggedIn", updateLoginStatus);
+
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+      window.removeEventListener("loggedIn", updateLoginStatus);
+    };
   }, []);
 
   const handleLogin = () => {
     setUserLoggedIn(true);
+    setCartCount(getCartItemCount());
   };
 
   // const handleLogout = () => {

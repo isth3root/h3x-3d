@@ -1,10 +1,9 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import { Product } from '../data/products';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '../i18n';
-import { useAppStore } from '../store/store';
 
 const mockProduct: Product = {
   id: 'prod-1',
@@ -24,14 +23,9 @@ const renderWithProviders = (component: React.ReactElement) => {
   );
 };
 
-const originalState = useAppStore.getState();
-
 describe('ProductCard component', () => {
   beforeEach(() => {
-    act(() => {
-      useAppStore.setState(originalState);
-      i18n.changeLanguage('en');
-    });
+    i18n.changeLanguage('en');
   });
 
   it('should render product information', () => {
@@ -42,20 +36,9 @@ describe('ProductCard component', () => {
     expect(screen.getByText(mockProduct.category.en)).toBeInTheDocument();
   });
 
-  it('should toggle like button on click', () => {
+  it('should link the image to the product page', () => {
     renderWithProviders(<ProductCard product={mockProduct} />);
-
-    const likeButton = screen.getByLabelText('Like');
-    expect(likeButton.querySelector('svg')).toHaveAttribute('fill', 'none');
-
-    fireEvent.click(likeButton);
-
-    expect(likeButton.querySelector('svg')).toHaveAttribute('fill', 'currentColor');
-    expect(likeButton).toHaveAttribute('aria-label', 'Unlike');
-
-    fireEvent.click(likeButton);
-
-    expect(likeButton.querySelector('svg')).toHaveAttribute('fill', 'none');
-    expect(likeButton).toHaveAttribute('aria-label', 'Like');
+    const image = screen.getByAltText(mockProduct.name.en);
+    expect(image.closest('a')).toHaveAttribute('href', `/product/${mockProduct.id}`);
   });
 });

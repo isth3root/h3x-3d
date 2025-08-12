@@ -1,25 +1,47 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useGSAP } from "../hooks/useGSAP";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useCart } from "../hooks/useCart";
+import {
+  getCartItems,
+  updateCartQuantity,
+  removeFromCart,
+  CartItem,
+} from "../utils/cart";
 import { products } from "../data/products";
+import { useTranslation } from "react-i18next";
 
 const Cart: React.FC = () => {
+  const { t } = useTranslation();
   const ref = useGSAP<HTMLDivElement>();
-  const {
-    cartItems,
-    updateCartQuantity,
-    removeFromCart,
-    getCartItemCount,
-  } = useCart();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    setCartItems(getCartItems());
+  }, []);
+
+  const updateQuantity = (
+    id: string,
+    newQuantity: number,
+    material?: string
+  ) => {
+    updateCartQuantity(id, newQuantity, material);
+    setCartItems(getCartItems());
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+
+  const removeItem = (id: string, material?: string) => {
+    removeFromCart(id, material);
+    setCartItems(getCartItems());
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
 
   const getProductSpecs = (productId: string) => {
     const product = products.find((p) => p.id === productId);
     return product?.specifications || [];
   };
 
-  const totalItems = getCartItemCount();
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -27,12 +49,12 @@ const Cart: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Shopping Cart
+            {t('cart.title')}
           </h1>
           <p className="text-gray-600">
             {totalItems > 0
-              ? `${totalItems} item${totalItems !== 1 ? "s" : ""} in your cart`
-              : "Your cart is empty"}
+              ? t('cart.total_items', { count: totalItems })
+              : t('cart.empty_title')}
           </p>
         </div>
 
@@ -41,16 +63,16 @@ const Cart: React.FC = () => {
           <div className="text-center py-16">
             <ShoppingBag className="w-24 h-24 text-gray-300 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Your cart is empty
+              {t('cart.empty_title')}
             </h2>
             <p className="text-gray-600 mb-8">
-              Looks like you haven't added any items to your cart yet.
+              {t('cart.empty_desc')}
             </p>
             <Link
               to="/search"
               className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 inline-flex items-center"
             >
-              Browse Products
+              {t('cart.browse')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </div>
@@ -60,7 +82,7 @@ const Cart: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               {cartItems.map((item) => (
                 <div
-                  key={`${item.id}-${item.material}`}
+                  key={item.id}
                   className="bg-white rounded-xl p-6 shadow-lg"
                 >
                   <div className="flex flex-col md:flex-row gap-6">
@@ -81,16 +103,16 @@ const Cart: React.FC = () => {
                             {item.name}
                           </h3>
                           <p className="text-sm text-gray-600 mb-2">
-                            Product ID: {item.id}
+                            {t('cart.product_id')}: {item.id}
                           </p>
                           {item.material && (
                             <p className="text-sm text-primary-600 font-medium">
-                              Material: {item.material}
+                              {t('cart.material')}: {item.material}
                             </p>
                           )}
                         </div>
                         <button
-                          onClick={() => removeFromCart(item.id, item.material)}
+                          onClick={() => removeItem(item.id, item.material)}
                           className="text-red-500 hover:text-red-700 transition-colors duration-200"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -100,7 +122,7 @@ const Cart: React.FC = () => {
                       {/* Specifications */}
                       <div className="mb-4">
                         <p className="text-sm font-medium text-gray-700 mb-2">
-                          Specifications:
+                          {t('cart.specifications')}:
                         </p>
                         <ul className="text-sm text-gray-600 space-y-1">
                           {getProductSpecs(item.id)
@@ -115,12 +137,12 @@ const Cart: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <span className="text-sm font-medium text-gray-700">
-                            Quantity:
+                            {t('cart.quantity')}:
                           </span>
                           <div className="flex items-center border border-gray-300 rounded-lg">
                             <button
                               onClick={() =>
-                                updateCartQuantity(
+                                updateQuantity(
                                   item.id,
                                   item.quantity - 1,
                                   item.material
@@ -135,7 +157,7 @@ const Cart: React.FC = () => {
                             </span>
                             <button
                               onClick={() =>
-                                updateCartQuantity(
+                                updateQuantity(
                                   item.id,
                                   item.quantity + 1,
                                   item.material
@@ -151,7 +173,7 @@ const Cart: React.FC = () => {
                           to={`/product/${item.id}`}
                           className="text-primary-600 hover:text-primary-700 text-sm font-medium transition-colors duration-200"
                         >
-                          View Details
+                          {t('product.view_details')}
                         </Link>
                       </div>
                     </div>
@@ -164,22 +186,22 @@ const Cart: React.FC = () => {
             <div className="space-y-6">
               <div className="bg-white rounded-xl p-6 shadow-lg">
                 <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                  Order Summary
+                  {t('cart.summary')}
                 </h2>
 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
-                    <span>Items ({totalItems})</span>
-                    <span>Contact for pricing</span>
+                    <span>{t('cart.total_items', { count: totalItems })}</span>
+                    <span>{t('product.contact')}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
-                    <span>Shipping</span>
-                    <span>Calculated at checkout</span>
+                    <span>{t('cart.shipping')}</span>
+                    <span>{t('cart.shipping_cost')}</span>
                   </div>
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-semibold text-gray-800">
-                      <span>Total</span>
-                      <span>Quote Required</span>
+                      <span>{t('cart.total')}</span>
+                      <span>{t('cart.quote_required')}</span>
                     </div>
                   </div>
                 </div>
@@ -203,29 +225,28 @@ const Cart: React.FC = () => {
                     }}
                     className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200"
                   >
-                    Email Cart for Quote
+                    {t('cart.email_quote')}
                   </button>
                   <Link
                     to="/search"
                     className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-6 rounded-lg font-semibold transition-colors duration-200 text-center block"
                   >
-                    Continue Shopping
+                    {t('cart.continue_shopping')}
                   </Link>
                 </div>
               </div>
 
               {/* Additional Info */}
               <div className="bg-primary-50 border border-primary-200 rounded-xl p-6">
-                <h3 className="font-semibold text-gray-800 mb-3">Need Help?</h3>
+                <h3 className="font-semibold text-gray-800 mb-3">{t('cart.help_title')}</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Our team is here to help you with custom specifications,
-                  material selection, and pricing.
+                  {t('cart.help_desc')}
                 </p>
                 <Link
                   to="/contact"
                   className="text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors duration-200"
                 >
-                  Contact Support →
+                  {t('cart.contact_support')}
                 </Link>
               </div>
             </div>

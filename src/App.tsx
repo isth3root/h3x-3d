@@ -1,18 +1,17 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import LandingPage from "./pages/LandingPage";
+import ProductDetail from "./pages/ProductDetail";
+import SearchPage from "./pages/SearchPage";
+import CustomOrders from "./pages/CustomOrders";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Cart from "./pages/Cart";
+import UserProfile from './pages/UserProfile';
+import NotFound from './pages/NotFound';
 import { useTranslation } from 'react-i18next';
-import { useEffect, lazy, Suspense } from 'react';
-
-const LandingPage = lazy(() => import("./pages/LandingPage"));
-const ProductDetail = lazy(() => import("./pages/ProductDetail"));
-const SearchPage = lazy(() => import("./pages/SearchPage"));
-const CustomOrders = lazy(() => import("./pages/CustomOrders"));
-const About = lazy(() => import("./pages/About"));
-const Contact = lazy(() => import("./pages/Contact"));
-const Cart = lazy(() => import("./pages/Cart"));
-const UserProfile = lazy(() => import('./pages/UserProfile'));
-const NotFound = lazy(() => import('./pages/NotFound'));
+import { useEffect } from 'react';
 
 function ScrollToTop() {
   const location = useLocation();
@@ -34,19 +33,17 @@ function App() {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/custom" element={<CustomOrders />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/profile" element={<UserProfile />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/custom" element={<CustomOrders />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </main>
         <Footer />
       </div>

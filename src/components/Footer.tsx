@@ -2,10 +2,21 @@ import React from 'react';
 import { Mail, Phone, MapPin, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { categories } from '../data/products';
 import { Star, Home, GraduationCap, Package, Gamepad2 } from 'lucide-react';
 
+const categoryIcons: { [key: string]: React.ReactNode } = {
+  Figurines: <Star className="w-4 h-4 mr-2" />,
+  "Home Decor": <Home className="w-4 h-4 mr-2" />,
+  Educational: <GraduationCap className="w-4 h-4 mr-2" />,
+  Accessories: <Package className="w-4 h-4 mr-2" />,
+  Games: <Gamepad2 className="w-4 h-4 mr-2" />,
+};
+
 const Footer: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as 'fa' | 'en';
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-6 py-16">
@@ -56,11 +67,19 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">{t('footer.categories')}</h4>
             <ul className="space-y-2">
-              <li><Link to="/search?category=Figurines" className="flex items-center text-gray-300 hover:text-primary-400 transition-colors duration-200"><Star className="w-4 h-4 mr-2" />{t('footer.figurines')}</Link></li>
-              <li><Link to="/search?category=Home%20Decor" className="flex items-center text-gray-300 hover:text-primary-400 transition-colors duration-200"><Home className="w-4 h-4 mr-2" />{t('footer.home_decor')}</Link></li>
-              <li><Link to="/search?category=Educational" className="flex items-center text-gray-300 hover:text-primary-400 transition-colors duration-200"><GraduationCap className="w-4 h-4 mr-2" />{t('footer.educational')}</Link></li>
-              <li><Link to="/search?category=Accessories" className="flex items-center text-gray-300 hover:text-primary-400 transition-colors duration-200"><Package className="w-4 h-4 mr-2" />{t('footer.accessories')}</Link></li>
-              <li><Link to="/search?category=Games" className="flex items-center text-gray-300 hover:text-primary-400 transition-colors duration-200"><Gamepad2 className="w-4 h-4 mr-2" />{t('footer.games')}</Link></li>
+              {categories
+                .filter((cat) => cat.en !== "All")
+                .map((category) => (
+                  <li key={category.en}>
+                    <Link
+                      to={`/search?category=${encodeURIComponent(category[lang])}`}
+                      className="flex items-center text-gray-300 hover:text-primary-400 transition-colors duration-200"
+                    >
+                      {categoryIcons[category.en]}
+                      {category[lang]}
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </div>
 

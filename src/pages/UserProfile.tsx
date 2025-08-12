@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLikes } from '../hooks/useLikes';
-import { useCart } from '../hooks/useCart';
+import { getLikedProducts } from '../utils/likes';
 import { products } from '../data/products';
 import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { getUser, logout as doLogout } from '../utils/auth';
+import { clearLikes } from '../utils/likes';
+import { clearCart } from '../utils/cart';
 import { useNavigate } from 'react-router-dom';
 
 const USER_PROFILE_KEY = 'user_profile';
@@ -19,8 +20,7 @@ const UserProfile: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState<UserProfileData>({ name: '', age: '', address: '' });
   const [editMode, setEditMode] = useState(false);
-  const { likedProducts, clearLikes } = useLikes();
-  const { clearCart } = useCart();
+  const [likes, setLikes] = useState<string[]>([]);
   const profileCardRef = useRef<HTMLDivElement>(null);
   const likesCardRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -29,6 +29,7 @@ const UserProfile: React.FC = () => {
   useEffect(() => {
     const stored = localStorage.getItem(USER_PROFILE_KEY);
     if (stored) setProfile(JSON.parse(stored));
+    setLikes(getLikedProducts());
     setUser(getUser());
     if (!getUser()) {
       navigate('/');
@@ -50,7 +51,7 @@ const UserProfile: React.FC = () => {
         { opacity: 1, y: 0, duration: 0.7, delay: 0.1, ease: 'power2.out' }
       );
     }
-  }, [editMode, likedProducts.length, i18n.language]);
+  }, [editMode, likes.length, i18n.language]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -115,11 +116,11 @@ const UserProfile: React.FC = () => {
         </div>
         <div ref={likesCardRef} className="bg-white/80 backdrop-blur rounded-2xl shadow-2xl p-8 border border-primary-100">
           <h2 className="text-xl font-bold mb-4 text-primary-700">{t('profile.likes')}</h2>
-          {likedProducts.length === 0 ? (
+          {likes.length === 0 ? (
             <div className="text-gray-500 text-center">{t('profile.nolikes')}</div>
           ) : (
             <ul className="space-y-2">
-              {likedProducts.map(id => {
+              {likes.map(id => {
                 const product = products.find(p => p.id === id);
                 return product ? (
                   <li key={id} className="border-b pb-2 flex items-center gap-2">

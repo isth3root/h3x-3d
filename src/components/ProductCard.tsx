@@ -2,8 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
-import { useLikes } from '../hooks/useLikes';
-import { Heart } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -13,33 +11,21 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) => {
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'fa' | 'en';
-  const { isLiked, toggleLike } = useLikes(product.id);
-
-  const handleLikeClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleLike(product.id);
-  };
-
   return (
     <div className={`group cursor-pointer ${className}`}>
       <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
         {/* Image Container */}
         <div className="relative overflow-hidden">
-          <img
-            src={product.images[0]}
-            alt={product.name[lang]}
-            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-          />
+          <Link to={`/product/${product.id}`}>
+            <img
+              src={product.images[0]}
+              alt={product.name[lang]}
+              className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          </Link>
           
-          {/* Like Button */}
-          <button
-            onClick={handleLikeClick}
-            className="absolute top-4 right-4 bg-white bg-opacity-70 p-2 rounded-full text-gray-800 hover:text-red-500 transition-colors duration-200 z-10"
-            aria-label={t(isLiked ? 'product.unlike' : 'product.like')}
-          >
-            <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} className={isLiked ? 'text-red-500' : ''} />
-          </button>
+          {/* Overlay */}
+          {/* Removed overlay with eye and like icons */}
 
           {/* Featured Badge */}
           {product.featured && (
@@ -47,6 +33,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) =>
               {t('search.featured')}
             </div>
           )}
+
+          {/* Category Badge */}
+          <div className="absolute top-4 right-4 bg-white bg-opacity-90 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+            {product.category[lang]}
+          </div>
         </div>
 
         {/* Content */}
@@ -63,10 +54,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = "" }) =>
           <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
             {product.description[lang]}
           </p>
-
-          <div className="text-sm text-gray-500 mb-4">
-            {t('search.category')}: <span className="font-medium text-gray-700">{product.category[lang]}</span>
-          </div>
 
           {/* Materials */}
           {product.materials && (
