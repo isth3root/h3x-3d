@@ -17,14 +17,8 @@ import { products } from "../data/products";
 import ProductCarousel from "../components/ProductCarousel";
 import { useGSAP, useStaggerAnimation } from "../hooks/useGSAP";
 import { isLoggedIn } from "../utils/auth";
-import {
-  addToCart,
-  getCartItemCount,
-  getCartItems,
-  removeFromCart,
-  updateCartQuantity,
-} from "../utils/cart";
-import { toggleLike, isProductLiked } from "../utils/likes";
+import { useCart } from "../hooks/useCart";
+import { useLikes } from "../hooks/useLikes";
 import LoginModal from "../components/LoginModal";
 import { useTranslation } from 'react-i18next';
 
@@ -33,12 +27,20 @@ const ProductDetail: React.FC = () => {
   const product = products.find((p) => p.id === id);
   const [isLoginModalOpen, setIsLoginModalOpen] = React.useState(false);
   const [userLoggedIn, setUserLoggedIn] = React.useState(false);
-  const [isLiked, setIsLiked] = React.useState(false);
   const [selectedMaterial, setSelectedMaterial] = React.useState("");
-  const [, setCartCount] = React.useState(0);
   const [showToast, setShowToast] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState("");
-  const [productInCart, setProductInCart] = React.useState(0);
+
+  const { isLiked, toggleLike } = useLikes(product?.id);
+  const { cartItems, addToCart, updateCartQuantity } = useCart();
+
+  const productInCart = React.useMemo(() => {
+    if (!product) return 0;
+    const item = cartItems.find(
+      (item) => item.id === product.id && item.material === selectedMaterial
+    );
+    return item ? item.quantity : 0;
+  }, [cartItems, product, selectedMaterial]);
 
   const heroRef = useGSAP<HTMLDivElement>();
   const detailsRef = useStaggerAnimation<HTMLDivElement>(".detail-item", 0.1);
@@ -48,43 +50,19 @@ const ProductDetail: React.FC = () => {
 
   React.useEffect(() => {
     setUserLoggedIn(isLoggedIn());
-    setCartCount(getCartItemCount());
     if (product) {
-      setIsLiked(isProductLiked(product.id));
       setSelectedMaterial(product.materials?.[0] || "");
-      updateProductInCart();
     }
   }, [product]);
-
-  React.useEffect(() => {
-    const handleCartUpdate = () => {
-      setCartCount(getCartItemCount());
-      updateProductInCart();
-    };
-
-    window.addEventListener("cartUpdated", handleCartUpdate);
-    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
-  }, [product, selectedMaterial]);
-
-  const updateProductInCart = () => {
-    if (product) {
-      const cartItems = getCartItems();
-      const item = cartItems.find(
-        (item) => item.id === product.id && item.material === selectedMaterial
-      );
-      setProductInCart(item ? item.quantity : 0);
-    }
-  };
 
   const showToastMessage = (message: string) => {
     setToastMessage(message);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
+
   const handleLogin = () => {
     setUserLoggedIn(true);
-    setCartCount(getCartItemCount());
-    updateProductInCart();
   };
 
   const handleLike = () => {
@@ -94,10 +72,9 @@ const ProductDetail: React.FC = () => {
     }
 
     if (product) {
-      const newLikedState = toggleLike(product.id);
-      setIsLiked(newLikedState);
+      toggleLike(product.id);
       showToastMessage(
-        newLikedState ? "Added to favorites!" : "Removed from favorites"
+        !isLiked ? "Added to favorites!" : "Removed from favorites"
       );
     }
   };
@@ -109,17 +86,14 @@ const ProductDetail: React.FC = () => {
     }
 
     if (product) {
-      addToCart(
-        product.id,
-        product.name[lang],
-        product.images[0],
-        product.category[lang],
-        selectedMaterial
-      );
-      setCartCount(getCartItemCount());
-      updateProductInCart();
+      addToCart({
+        id: product.id,
+        name: product.name[lang],
+        image: product.images[0],
+        category: product.category[lang],
+        material: selectedMaterial,
+      });
       showToastMessage("Added to cart!");
-      window.dispatchEvent(new Event("cartUpdated"));
     }
   };
 
@@ -130,15 +104,8 @@ const ProductDetail: React.FC = () => {
     }
 
     if (product) {
-      if (newQuantity === 0) {
-        removeFromCart(product.id, selectedMaterial);
-        showToastMessage("Removed from cart");
-      } else {
-        updateCartQuantity(product.id, newQuantity, selectedMaterial);
-        showToastMessage("Cart updated");
-      }
-      updateProductInCart();
-      window.dispatchEvent(new Event("cartUpdated"));
+      updateCartQuantity(product.id, newQuantity, selectedMaterial);
+      showToastMessage(newQuantity > 0 ? "Cart updated" : "Removed from cart");
     }
   };
   const handleShare = async () => {

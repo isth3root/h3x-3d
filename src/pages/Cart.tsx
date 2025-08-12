@@ -1,45 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useGSAP } from "../hooks/useGSAP";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  getCartItems,
-  updateCartQuantity,
-  removeFromCart,
-  CartItem,
-} from "../utils/cart";
+import { useCart } from "../hooks/useCart";
 import { products } from "../data/products";
 
 const Cart: React.FC = () => {
   const ref = useGSAP<HTMLDivElement>();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  useEffect(() => {
-    setCartItems(getCartItems());
-  }, []);
-
-  const updateQuantity = (
-    id: string,
-    newQuantity: number,
-    material?: string
-  ) => {
-    updateCartQuantity(id, newQuantity, material);
-    setCartItems(getCartItems());
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
-
-  const removeItem = (id: string, material?: string) => {
-    removeFromCart(id, material);
-    setCartItems(getCartItems());
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
+  const {
+    cartItems,
+    updateCartQuantity,
+    removeFromCart,
+    getCartItemCount,
+  } = useCart();
 
   const getProductSpecs = (productId: string) => {
     const product = products.find((p) => p.id === productId);
     return product?.specifications || [];
   };
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = getCartItemCount();
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -80,7 +60,7 @@ const Cart: React.FC = () => {
             <div className="lg:col-span-2 space-y-6">
               {cartItems.map((item) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${item.material}`}
                   className="bg-white rounded-xl p-6 shadow-lg"
                 >
                   <div className="flex flex-col md:flex-row gap-6">
@@ -110,7 +90,7 @@ const Cart: React.FC = () => {
                           )}
                         </div>
                         <button
-                          onClick={() => removeItem(item.id, item.material)}
+                          onClick={() => removeFromCart(item.id, item.material)}
                           className="text-red-500 hover:text-red-700 transition-colors duration-200"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -140,7 +120,7 @@ const Cart: React.FC = () => {
                           <div className="flex items-center border border-gray-300 rounded-lg">
                             <button
                               onClick={() =>
-                                updateQuantity(
+                                updateCartQuantity(
                                   item.id,
                                   item.quantity - 1,
                                   item.material
@@ -155,7 +135,7 @@ const Cart: React.FC = () => {
                             </span>
                             <button
                               onClick={() =>
-                                updateQuantity(
+                                updateCartQuantity(
                                   item.id,
                                   item.quantity + 1,
                                   item.material

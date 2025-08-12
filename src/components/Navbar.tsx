@@ -4,7 +4,7 @@ import { Menu, X, ShoppingCart, User, ChevronDown, Globe } from "lucide-react";
 import { gsap } from "gsap";
 import { categories } from "../data/products";
 import { isLoggedIn } from "../utils/auth";
-import { getCartItemCount } from "../utils/cart";
+import { useCart } from "../hooks/useCart";
 import LoginModal from "./LoginModal";
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +16,8 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const { getCartItemCount } = useCart();
+  const cartCount = getCartItemCount();
   const location = useLocation();
   const navigate = useNavigate();
   const categoriesDropdownRef = useRef<HTMLDivElement>(null);
@@ -24,17 +25,10 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     setUserLoggedIn(isLoggedIn());
-    setCartCount(getCartItemCount());
-    const handleCartUpdate = () => {
-      setCartCount(getCartItemCount());
-    };
-    window.addEventListener("cartUpdated", handleCartUpdate);
-    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
   }, []);
 
   const handleLogin = () => {
     setUserLoggedIn(true);
-    setCartCount(getCartItemCount());
   };
 
   // const handleLogout = () => {
